@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yummy - Premium Food Delivery</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* === PREMIUM CSS STARTS HERE === */
+    :root {
+      --gold: #D4AF37;
+      --dark: #1A1A1A;
+      --light: #F8F8F8;
+      --accent: #E63946;
+      --transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F9D423 100%);
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+    
+    /* === Luxury Navbar === */
+    .navbar {
+      display: flex;
+      align-items: center;
+      padding: 25px 5%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      letter-spacing: 1px;
+    }
+    
+    .toggle-btn {
+      font-size: 1.8rem;
+      color: var(--dark);
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 1001;
+    }
+    
+    .toggle-btn:hover {
+      color: var(--gold);
+    }
+    
+    #nav-links {
+      display: flex;
+      gap: 30px;
+    }
+    
+    #nav-links a {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      color: var(--dark);
+      text-decoration: none;
+      position: relative;
+      padding: 8px 0;
+      transition: var(--transition);
+    }
+    
+    #nav-links a:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gold);
+      transition: var(--transition);
+    }
+    
+    #nav-links a:hover:after,
+    #nav-links a.active:after {
+      width: 100%;
+    }
+    
+    .order-btn {
+      background: var(--gold-gradient);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .order-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+    }
+    
+    /* === Hero Section === */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 0 5%;
+      background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center;
+      background-size: cover;
+      position: relative;
+    }
+    
+    .hero:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+      color: white;
+    }
+    
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    
+    .cta-btn {
+      background: var(--gold-gradient);
+      color: white;
+      border: none;
+      padding: 15px 35px;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .cta-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* === Mobile Menu === */
+    @media (max-width: 992px) {
+      #nav-links {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        max-width: 350px;
+        height: 100vh;
+        background: white;
+        flex-direction: column;
+        padding: 100px 30px 30px;
+        box-shadow: 5px 0 30px rgba(0, 0, 0, 0.1);
+        transition: var(--transition);
+        z-index: 999;
+      }
+      
+      #nav-links.active {
+        left: 0;
+      }
+      
+      #nav-links a {
+        color: var(--dark);
+        font-size: 1.2rem;
+        padding: 15px 0;
+      }
+      
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+    }
+    
+    /* === Add this JavaScript === */
+    <script>
+      function toggleMenu() {
+        document.getElementById('nav-links').classList.toggle('active');
+        document.querySelector('.toggle-btn').classList.toggle('active');
+      }
+      
+      // Close menu when clicking on links
+      document.querySelectorAll('#nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+          document.getElementById('nav-links').classList.remove('active');
+        });
+      });
+    </script>
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="toggle-btn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </div>
+    
+    <div class="logo">Yummy</div>
+    
+    <nav id="nav-links">
+      <a href="home.html" class="active">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="about.html">About</a>
+      <a href="restaurant_admin.html">
+        <button class="order-btn">
+          <i class="fas fa-utensils"></i> Restaurant
+        </button>
+      </a>
+    </nav>
+    
+    <a href="cart.html" class="cart-alone">
+      <button class="order-btn">
+        <i class="fas fa-shopping-cart"></i> CART
+      </button>
+    </a>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Exquisite Cuisine <br>Delivered to <span style="background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Your Door</span></h1>
+      <p>Experience Michelin-star quality meals prepared by top chefs and delivered in premium packaging to preserve flavor and presentation.</p>
+      <button class="cta-btn">
+        Order Now <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </section>
+</body>
+</html>

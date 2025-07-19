@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Admin - Yummy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-family: 'Pacifico', cursive;
+            font-size: 2rem;
+            color: #e74c3c;
+        }
+
+        .admin-badge {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            border-left: 5px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.pending {
+            border-left-color: #f39c12;
+        }
+
+        .stat-card.approved {
+            border-left-color: #27ae60;
+        }
+
+        .stat-card.rejected {
+            border-left-color: #e74c3c;
+        }
+
+        .stat-card.total {
+            border-left-color: #3498db;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .pending .stat-number { color: #f39c12; }
+        .approved .stat-number { color: #27ae60; }
+        .rejected .stat-number { color: #e74c3c; }
+        .total .stat-number { color: #3498db; }
+
+        .notifications-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #e74c3c;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-item {
+            background: linear-gradient(135deg, #fff5f5, #ffeaea);
+            border: 2px solid #f39c12;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1); }
+            50% { box-shadow: 0 6px 20px rgba(243, 156, 18, 0.2); }
+            100% { box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1); }
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .restaurant-info h3 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .restaurant-info p {
+            color: #7f8c8d;
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-time {
+            color: #95a5a6;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .approve-btn, .reject-btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .approve-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .approve-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .reject-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .reject-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .restaurants-list {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .restaurant-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid;
+            transition: all 0.3s ease;
+        }
+
+        .restaurant-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .restaurant-card.approved {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #f8fff8, #e8f5e8);
+        }
+
+        .restaurant-card.rejected {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #fff8f8, #f5e8e8);
+        }
+
+        .restaurant-card.pending {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fffaf0, #fdf2e9);
+        }
+
+        .restaurant-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .restaurant-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .restaurant-status {
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-approved {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-rejected {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .status-pending {
+            background: #f39c12;
+            color: white;
+        }
+
+        .restaurant-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            color: #7f8c8d;
+        }
+
+        .menu-count {
+            background: #3498db;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .notification-badge {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .notification-badge.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .approve-btn, .reject-btn {
+                width: 100%;
+            }
+
+            .restaurant-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Yummy - Admin Portal</div>
+        <div class="admin-badge">🔐 Company Admin</div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">🏢 Company Dashboard</h1>
+            <p class="dashboard-subtitle">Manage restaurant partnerships and approvals</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card pending">
+                <div class="stat-number" id="pending-count">0</div>
+                <div class="stat-label">Pending Approvals</div>
+            </div>
+            <div class="stat-card approved">
+                <div class="stat-number" id="approved-count">0</div>
+                <div class="stat-label">Approved Restaurants</div>
+            </div>
+            <div class="stat-card rejected">
+                <div class="stat-number" id="rejected-count">0</div>
+                <div class="stat-label">Rejected Applications</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-number" id="total-count">0</div>
+                <div class="stat-label">Total Applications</div>
+            </div>
+        </div>
+
+        <div class="notifications-section">
+            <h2 class="section-title">
+                🔔 Pending Approvals
+                <span id="notification-count" style="background: #f39c12; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 1rem;">0</span>
+            </h2>
+            <div id="notifications-container">
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <h3>No pending approvals</h3>
+                    <p>All restaurant applications have been reviewed</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="restaurants-list">
+            <h2 class="section-title">🏪 All Restaurants</h2>
+            <div id="restaurants-container">
+                <div class="empty-state">
+                    <div class="empty-icon">🏪</div>
+                    <h3>No restaurants registered yet</h3>
+                    <p>Restaurants will appear here once they sign up</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification-badge" id="notification-badge"></div>
+
+    <script>
+        // ==================== SHARED DATA STORAGE ====================
+        // Initialize shared storage if it doesn't exist
+        if (!window.restaurantData) {
+          try {
+            const storedData = localStorage.getItem('restaurantData');
+            window.restaurantData = storedData ? JSON.parse(storedData) : [];
+          } catch (e) {
+            console.error("Error initializing restaurant data:", e);
+            window.restaurantData = [];
+          }
+        }
+      
+        function saveRestaurantData(data) {
+          try {
+            window.restaurantData = data;
+            localStorage.setItem('restaurantData', JSON.stringify(data));
+            window.dispatchEvent(new CustomEvent('restaurantDataUpdated'));
+          } catch (e) {
+            console.error("Error saving restaurant data:", e);
+          }
+        }
+      
+        function loadRestaurantData() {
+          try {
+            const data = localStorage.getItem('restaurantData');
+            return data ? JSON.parse(data) : [];
+          } catch (e) {
+            console.error("Error loading restaurant data:", e);
+            return [];
+          }
+        }
+      
+        // ==================== COMPANY ADMIN LOGIC ====================
+        let restaurants = [];
+        let lastRestaurantCount = 0;
+      
+        // Update dashboard statistics and content
+        function updateDashboard() {
+          const pending = restaurants.filter(r => !r.approved && !r.rejected);
+          const approved = restaurants.filter(r => r.approved);
+          const rejected = restaurants.filter(r => r.rejected);
+      
+          // Update statistics
+          document.getElementById('pending-count').textContent = pending.length;
+          document.getElementById('approved-count').textContent = approved.length;
+          document.getElementById('rejected-count').textContent = rejected.length;
+          document.getElementById('total-count').textContent = restaurants.length;
+          document.getElementById('notification-count').textContent = pending.length;
+      
+          // Update notifications and restaurants list
+          renderNotifications(pending);
+          renderRestaurants();
+        }
+      
+        // Render pending notifications
+        function renderNotifications(pendingRestaurants) {
+          const container = document.getElementById('notifications-container');
+          if (!container) return;
+          
+          if (pendingRestaurants.length === 0) {
+            container.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3>No pending approvals</h3>
+                <p>All restaurant applications have been reviewed</p>
+              </div>
+            `;
+            return;
+          }
+      
+          container.innerHTML = pendingRestaurants.map(restaurant => `
+            <div class="notification-item">
+              <div class="notification-header">
+                <div class="restaurant-info">
+                  <h3>🏪 ${restaurant.name}</h3>
+                  <p><strong>Email:</strong> ${restaurant.email}</p>
+                  <p><strong>Phone:</strong> ${restaurant.phone}</p>
+                  <p><strong>Address:</strong> ${restaurant.address}</p>
+                </div>
+                <div class="notification-time">
+                  Applied: ${new Date(restaurant.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+              <div class="action-buttons">
+                <button class="approve-btn" onclick="approveRestaurant(${restaurant.id})">
+                  ✅ Approve
+                </button>
+                <button class="reject-btn" onclick="rejectRestaurant(${restaurant.id})">
+                  ❌ Reject
+                </button>
+              </div>
+            </div>
+          `).join('');
+        }
+      
+        // Render all restaurants
+        function renderRestaurants() {
+          const container = document.getElementById('restaurants-container');
+          if (!container) return;
+          
+          if (restaurants.length === 0) {
+            container.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-icon">🏪</div>
+                <h3>No restaurants registered yet</h3>
+                <p>Restaurants will appear here once they sign up</p>
+              </div>
+            `;
+            return;
+          }
+      
+          container.innerHTML = restaurants.map(restaurant => {
+            let statusClass = 'pending';
+            let statusText = 'Pending';
+            
+            if (restaurant.approved) {
+              statusClass = 'approved';
+              statusText = 'Approved';
+            } else if (restaurant.rejected) {
+              statusClass = 'rejected';
+              statusText = 'Rejected';
+            }
+      
+            const menuCount = restaurant.menuItems ? restaurant.menuItems.length : 0;
+            const appliedDate = new Date(restaurant.createdAt).toLocaleDateString();
+            const approvedRejectedDate = restaurant.approvedAt || restaurant.rejectedAt 
+              ? new Date(restaurant.approvedAt || restaurant.rejectedAt).toLocaleDateString() 
+              : '';
+      
+            return `
+              <div class="restaurant-card ${statusClass}">
+                <div class="restaurant-card-header">
+                  <div class="restaurant-name">${restaurant.name}</div>
+                  <div class="restaurant-status status-${statusClass}">${statusText}</div>
+                </div>
+                <div class="restaurant-details">
+                  <div><strong>Email:</strong> ${restaurant.email}</div>
+                  <div><strong>Phone:</strong> ${restaurant.phone}</div>
+                  <div><strong>Applied:</strong> ${appliedDate}</div>
+                  ${approvedRejectedDate ? `<div><strong>${statusText}:</strong> ${approvedRejectedDate}</div>` : ''}
+                  <div><strong>Address:</strong> ${restaurant.address}</div>
+                </div>
+                <div class="menu-count">📋 ${menuCount} Menu Items</div>
+              </div>
+            `;
+          }).join('');
+        }
+      
+        // Approve restaurant
+        function approveRestaurant(restaurantId) {
+          const restaurant = restaurants.find(r => r.id === restaurantId);
+          if (!restaurant) return;
+      
+          restaurant.approved = true;
+          restaurant.rejected = false;
+          restaurant.approvedAt = new Date().toISOString();
+      
+          saveRestaurantData(restaurants);
+          updateDashboard();
+          showNotification(`${restaurant.name} has been approved! 🎉`, 'success');
+        }
+      
+        // Reject restaurant
+        function rejectRestaurant(restaurantId) {
+          const restaurant = restaurants.find(r => r.id === restaurantId);
+          if (!restaurant) return;
+      
+          if (confirm(`Are you sure you want to reject ${restaurant.name}? This cannot be undone.`)) {
+            restaurant.rejected = true;
+            restaurant.approved = false;
+            restaurant.rejectedAt = new Date().toISOString();
+      
+            saveRestaurantData(restaurants);
+            updateDashboard();
+            showNotification(`${restaurant.name} has been rejected.`, 'error');
+          }
+        }
+      
+        // Show notification badge
+        function showNotification(message, type = 'success') {
+          const badge = document.getElementById('notification-badge');
+          if (!badge) return;
+          
+          badge.textContent = message;
+          badge.className = `notification-badge ${type}`;
+          badge.classList.add('show');
+      
+          setTimeout(() => {
+            badge.classList.remove('show');
+          }, 4000);
+        }
+      
+        // Check for new applications
+        function checkForNewApplications() {
+          const currentCount = restaurants.length;
+          const pendingCount = restaurants.filter(r => !r.approved && !r.rejected).length;
+          
+          if (currentCount > lastRestaurantCount) {
+            showNotification(`New restaurant application received! 🔔`, 'info');
+            lastRestaurantCount = currentCount;
+          }
+        }
+      
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+          restaurants = loadRestaurantData();
+          lastRestaurantCount = restaurants.length;
+          updateDashboard();
+          
+          // Set up periodic refresh
+          const refreshInterval = setInterval(() => {
+            const newData = loadRestaurantData();
+            if (JSON.stringify(newData) !== JSON.stringify(restaurants)) {
+              restaurants = newData;
+              updateDashboard();
+              checkForNewApplications();
+            }
+          }, 2000);
+      
+          // Clean up on page unload
+          window.addEventListener('beforeunload', () => {
+            clearInterval(refreshInterval);
+          });
+        });
+      
+        // Make functions available globally
+        window.approveRestaurant = approveRestaurant;
+        window.rejectRestaurant = rejectRestaurant;
+      </script>
+</body>
+</html>

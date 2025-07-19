@@ -1,0 +1,9 @@
+node_modules/
+.env
+server/
+Oracle_JDK-24.jdk/
+Oracle_JDK-24.jdk/
+Oracle_JDK-24.jdk/
+.DS_Store
+._*
+.Spotlight*
