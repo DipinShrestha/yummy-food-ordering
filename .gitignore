@@ -7,3 +7,6 @@ Oracle_JDK-24.jdk/
 .DS_Store
 ._*
 .Spotlight*
+Oracle_JDK-24.jdk/
+.DS_Store
+node_modules/
