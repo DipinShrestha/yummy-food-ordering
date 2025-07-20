@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us - Yummy Food Delivery</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Additional styles specific to about page */
+    .about-hero {
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      padding: 6rem 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    .admin-btn {
+  display: inline-block;
+  background-color: #ff5e57; /* Red-orange tone */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.admin-btn:hover {
+  background-color: #e14d47;
+  transform: scale(1.05);
+}
+    .about-hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      font-family: 'Pacifico', cursive;
+    }
+    
+    .about-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    
+    .about-section img {
+      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .about-text h2 {
+      color: #d32f2f;
+      font-size: 2.2rem;
+      margin-bottom: 1.5rem;
+      font-family: 'Pacifico', cursive;
+    }
+    
+    .about-text p {
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+    
+    .team-section {
+      background-color: #f9f9f9;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 3rem auto 0;
+    }
+    
+    .team-member {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease;
+    }
+    
+    .team-member:hover {
+      transform: translateY(-10px);
+    }
+    
+    .team-member img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1rem;
+      border: 5px solid #d32f2f;
+    }
+    
+    .values-section {
+      padding: 4rem 2rem;
+      text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .value-card {
+      padding: 2rem;
+      border-radius: 15px;
+      background: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .value-card i {
+      font-size: 3rem;
+      color: #d32f2f;
+      margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+      .about-section {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      .about-hero h1 {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <!-- Toggle bar (left side) -->
+    <div class="toggle-btn" onclick="toggleMenu()">☰</div>
+    
+    <!-- Logo (centered) -->
+    <div class="logo">Yummy</div>
+    
+    <!-- Nav links -->
+    <nav id="nav-links">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="about.html" class="active">About</a>
+      <a href="restaurant_admin.html">
+        <button class="order-btn">Restaurant Login</button>
+      </a>
+    </nav>
+    
+    <!-- Cart -->
+    <a href="cart.html" class="cart-alone">
+      <button class="order-btn"><i class="fas fa-shopping-cart"></i> CART</button>
+    </a>
+  </header>
+
+  <section class="about-hero">
+    <h1>Our Story</h1>
+    <p>Delivering deliciousness since 2020</p>
+  </section>
+
+  <section class="about-section">
+    <div class="about-image">
+      <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Our restaurant kitchen">
+    </div>
+    <div class="about-text">
+      <h2>Who We Are</h2>
+      <p>Yummy began as a small family-owned restaurant with a passion for creating memorable dining experiences. What started as a single location quickly grew into a beloved local favorite, and now we're bringing that same quality and care to your doorstep.</p>
+      <p>Our mission is simple: to connect people with the best local restaurants in their area, delivering restaurant-quality meals with the convenience of fast, reliable service.</p>
+      <p>Every dish we deliver is prepared with the same attention to detail as if you were dining in the restaurant itself. We partner only with establishments that share our commitment to quality ingredients, exceptional flavors, and outstanding service.</p>
+    </div>
+  </section>
+
+  <section class="team-section">
+    <h2 class="section-title">Meet Our Team</h2>
+    <p>The passionate people behind Yummy's success</p>
+    
+    <div class="team-grid">
+      <div class="team-member">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Team member">
+        <h3>Sarah Johnson</h3>
+        <p>Founder & CEO</p>
+      </div>
+      <div class="team-member">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Team member">
+        <h3>Michael Chen</h3>
+        <p>Head of Operations</p>
+      </div>
+      <div class="team-member">
+        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Team member">
+        <h3>Emily Rodriguez</h3>
+        <p>Customer Experience</p>
+      </div>
+      <div class="team-member">
+        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Team member">
+        <h3>David Wilson</h3>
+        <p>Delivery Network Manager</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="values-section">
+    <h2 class="section-title">Our Core Values</h2>
+    <p>What makes Yummy different</p>
+    
+    <div class="values-grid">
+      <div class="value-card">
+        <i class="fas fa-heart"></i>
+        <h3>Quality Food</h3>
+        <p>We never compromise on quality. Every dish is prepared with care using the freshest ingredients.</p>
+      </div>
+      <div class="value-card">
+        <i class="fas fa-bolt"></i>
+        <h3>Fast Delivery</h3>
+        <p>Our efficient delivery network ensures your food arrives hot and fresh, every time.</p>
+      </div>
+      <div class="value-card">
+        <i class="fas fa-hands-helping"></i>
+        <h3>Community Focus</h3>
+        <p>We support local restaurants and source ingredients from regional suppliers whenever possible.</p>
+      </div>
+    </div>
+  </section>
+  <a href="company_admin_login.html" class="admin-btn">Company Admin</a>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Yummy</h3>
+        <p>Delivering delicious meals to your doorstep since 2020.</p>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="restaurant_admin.html">Restaurant Login</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Contact Us</h3>
+        <p><i class="fas fa-map-marker-alt"></i> 123 Food Street, New York</p>
+        <p><i class="fas fa-phone"></i> +1 234 567 890</p>
+        <p><i class="fas fa-envelope"></i> hello@yummy.com</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2023 Yummy. All rights reserved.</p>
+    </div>
+  </footer>
+  
+  <script>
+    function toggleMenu() {
+      const navLinks = document.getElementById('nav-links');
+      navLinks.classList.toggle('active');
+      
+      // Toggle body overflow to prevent scrolling when menu is open
+      document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+    }
+    
+    document.addEventListener('click', (e) => {
+      const navLinks = document.getElementById('nav-links');
+      if (!e.target.closest('#nav-links') && !e.target.closest('.toggle-btn')) {
+        navLinks.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  
+    // Close menu when clicking on a link
+    document.querySelectorAll('#nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('nav-links').classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    });
+  </script>
+</body>
+</html>

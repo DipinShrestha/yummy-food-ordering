@@ -360,6 +360,12 @@
             }
         }
     </style>
+    <script>
+        if (localStorage.getItem("isAdmin") !== "true") {
+          alert("Access denied!");
+          window.location.href = "index.html";
+        }
+      </script>
 </head>
 <body>
     <header class="navbar">
@@ -421,5 +427,13 @@
     <div class="notification-badge" id="notification-badge"></div>
 
     <script src="js/company_admin.js"></script>
+    <button onclick="logout()">Logout</button>
+
+<script>
+  function logout() {
+    localStorage.removeItem("isAdmin");
+    window.location.href = "index.html";
+  }
+</script>
 </body>
 </html>
