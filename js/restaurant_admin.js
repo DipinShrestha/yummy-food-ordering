@@ -5,6 +5,7 @@ let restaurants = [];
 let orders = [];
 let orderNotificationCount = 0;
 
+
 // Load orders
 function loadOrders() {
     try {
@@ -86,31 +87,42 @@ document.getElementById('signup-form').addEventListener('submit', async function
     }
 });
 
-// Handle login
-document.getElementById('login-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-
-    try {
-        const res = await fetch(`https://yummy-food-ordering.onrender.com/api/restaurants/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-
-        if (!res.ok) throw new Error('Login failed');
-
-        const restaurant = await res.json();
-        currentUser = restaurant;
-        localStorage.setItem('currentUserId', currentUser._id); // backend ID
-        showDashboard();
-        showNotification('Login successful!');
-    } catch (err) {
-        showNotification('Invalid credentials or unapproved account', 'error');
+document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+  
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
     }
-});
+  
+    try {
+      const res = await fetch('https://yummy-food-ordering.onrender.com/api/restaurants/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        alert(data.message || 'Login failed');
+        return;
+      }
+  
+      alert("Login successful!");
+  
+      // Store info or redirect (optional)
+      localStorage.setItem("restaurant", JSON.stringify(data));
+      // window.location.href = "dashboard.html"; // example redirect
+  
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Something went wrong during login.");
+    }
+  });
+
+  
 
 // Show dashboard
 function showDashboard() {
