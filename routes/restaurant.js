@@ -1,6 +1,6 @@
 const express = require('express');
 const Restaurant = require('../models/Restaurant');
-const MenuItem = require('../models/menuitem');
+const MenuItem = require('../models/MenuItem');
 const router = express.Router();
 
 // Get all approved restaurants
