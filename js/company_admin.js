@@ -255,7 +255,7 @@ async function initializeAdminDashboard() {
     // Check if admin is authenticated
     const token = localStorage.getItem('adminToken');
     if (!token) {
-      window.location.href = '/admin-login.html';
+      window.location.href = '/company_admin-login.html';
       return;
     }
 

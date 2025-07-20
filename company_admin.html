@@ -360,7 +360,12 @@
             }
         }
     </style>
-    
+    <script>
+        if (localStorage.getItem("isAdmin") !== "true") {
+          alert("Access denied!");
+          window.location.href = "index.html";
+        }
+      </script>
 </head>
 <body>
     <header class="navbar">
