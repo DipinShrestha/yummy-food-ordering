@@ -1,16 +1,16 @@
 {
   "name": "yummy-food-ordering-backend",
   "version": "1.0.0",
-  "description": "Backend for Yummy Food Ordering app",
+  "description": "Backend for Yummy Food Ordering",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "mongodb": "^6.17.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "nodemailer": "^6.9.14"
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.16.4",
+    "nodemailer": "^6.10.1"
   }
 }
