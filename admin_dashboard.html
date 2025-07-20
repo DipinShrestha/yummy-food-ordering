@@ -2,12 +2,75 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Dashboard</title>
-<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Restaurants</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background-color: #f4f4f4; }
+  button { margin-right: 5px; }
+</style>
 </head>
 <body>
-<h1>Admin Dashboard</h1>
-<table id="restaurantTable"></table>
-<script src="js/admin_dashboard.js"></script>
+
+<h1>Admin Dashboard: Manage Restaurants</h1>
+
+<table>
+<thead>
+<tr>
+  <th>Name</th>
+  <th>Email</th>
+  <th>Status</th>
+  <th>Actions</th>
+</tr>
+</thead>
+<tbody id="restaurantTable">
+  <!-- Data will be inserted here -->
+</tbody>
+</table>
+
+<script>
+const restaurants = [
+  { id: 1, name: "Pizza Place", email: "pizza@example.com", status: "pending" },
+  { id: 2, name: "Sushi House", email: "sushi@example.com", status: "approved" },
+  { id: 3, name: "Burger Joint", email: "burger@example.com", status: "rejected" }
+];
+
+function renderTable() {
+  const tbody = document.getElementById("restaurantTable");
+  tbody.innerHTML = "";
+
+  restaurants.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.name}</td>
+      <td>${r.email}</td>
+      <td>${r.status}</td>
+      <td>
+        ${r.status === 'pending' ? `
+          <button onclick="updateStatus(${r.id}, 'approved')">Approve</button>
+          <button onclick="updateStatus(${r.id}, 'rejected')">Reject</button>` 
+        : r.status === 'rejected' ? `
+          <button onclick="updateStatus(${r.id}, 'pending')">Restore</button>` 
+        : ''}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateStatus(id, newStatus) {
+  const restaurant = restaurants.find(r => r.id === id);
+  if (restaurant) {
+    restaurant.status = newStatus;
+    renderTable();
+    alert(`${restaurant.name} is now ${newStatus}`);
+  }
+}
+
+renderTable();
+</script>
+
 </body>
 </html>
