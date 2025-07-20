@@ -1,42 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <title>Menu - Yummy Food Delivery</title>
-    <link rel="stylesheet" href="css/menu.css">
-    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Yummy Menu</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    .restaurant { margin-bottom: 30px; }
+    .item { margin-left: 20px; padding: 5px; }
+  </style>
 </head>
 <body>
-    <header class="navbar">
-        <div class="logo">Yummy</div>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="menu.html" class="active">Menu</a>
-            <a href="about.html">About</a>
-            <a href="restaurant_admin.html"><button class="order-btn">Restaurant Login</button></a>
-            <a href="cart.html"><button class="order-btn">MY CART (<span id="cart-count">0</span>)</button></a>
-        </nav>
-    </header>
+  <h2>🍽️ Yummy Food Menu</h2>
+  <div id="menuContainer"></div>
 
-    <div class="container">
-        <h1 class="page-title">🍽️ Our Restaurant Partners</h1>
-        
-        <div class="search-bar">
-            <input type="text" class="search-input" placeholder="Search restaurants or food items..." id="search-input">
-        </div>
+  <script>
+    const API = 'https://yummy-food-ordering.onrender.com/api';
 
-        <div class="restaurants-grid" id="restaurants-container">
-            <div class="empty-state">
-                <div class="empty-icon">🏪</div>
-                <h3>No restaurants available yet</h3>
-                <p>Restaurants are being reviewed and will appear here once approved!</p>
-            </div>
-        </div>
-    </div>
-    
-    <script src="js/menu.js"></script>
-    <script type="module" src="api.js"></script>
+    async function loadMenu() {
+      const restaurantsRes = await fetch(`${API}/restaurants`);
+      const restaurants = await restaurantsRes.json();
+
+      const container = document.getElementById('menuContainer');
+      container.innerHTML = '';
+
+      for (let r of restaurants) {
+        const section = document.createElement('div');
+        section.className = 'restaurant';
+
+        const menuRes = await fetch(`${API}/restaurants/${r._id}/menu`);
+        const menu = await menuRes.json();
+
+        section.innerHTML = `<h3>${r.name}</h3>`;
+
+        menu.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'item';
+          div.innerHTML = `
+            🍔 <strong>${item.name}</strong><br>
+            ${item.description} - ₹${item.price}
+          `;
+          section.appendChild(div);
+        });
+
+        container.appendChild(section);
+      }
+    }
+
+    loadMenu();
+  </script>
 </body>
 </html>

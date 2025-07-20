@@ -125,3 +125,32 @@ router.patch('/admin/:id/reject', authMw, async (req, res) => {
 });
 
 module.exports = router;
+
+// Admin-only routes for approving/rejecting/removing restaurants
+router.get('/admin/list', async (req, res) => {
+  const restaurants = await Restaurant.find().sort({ createdAt: -1 });
+  res.json(restaurants);
+});
+
+router.patch('/admin/:id/approve', async (req, res) => {
+  const restaurant = await Restaurant.findByIdAndUpdate(
+    req.params.id,
+    { approved: true, approvedAt: Date.now(), rejected: false },
+    { new: true }
+  );
+  res.json(restaurant);
+});
+
+router.patch('/admin/:id/reject', async (req, res) => {
+  const restaurant = await Restaurant.findByIdAndUpdate(
+    req.params.id,
+    { approved: false, rejected: true, rejectedAt: Date.now() },
+    { new: true }
+  );
+  res.json(restaurant);
+});
+
+router.delete('/admin/:id', async (req, res) => {
+  await Restaurant.findByIdAndDelete(req.params.id);
+  res.json({ message: 'Deleted' });
+});
