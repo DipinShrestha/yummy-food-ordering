@@ -33,7 +33,8 @@
 
       if (username === validUsername && password === validPassword) {
         // Store session info and redirect
-        localStorage.setItem("isAdmin", "true");
+        // Change this in login page:
+localStorage.setItem("adminToken", "your-admin-token");
         window.location.href = "company_admin.html";
       } else {
         document.getElementById("error").innerText = "Invalid username or password.";
