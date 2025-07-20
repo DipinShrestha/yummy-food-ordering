@@ -23,6 +23,36 @@ router.get('/:id/menu', async (req, res) => {
   }
 });
 
+// Register a new restaurant (signup)
+router.post('/', async (req, res) => {
+  try {
+    const { name, email, password, phone, address } = req.body;
+
+    // Check if already exists
+    const existing = await Restaurant.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: 'Restaurant already exists' });
+    }
+
+    const newRestaurant = new Restaurant({
+      name,
+      email,
+      password,
+      phone,
+      address,
+      approved: false,
+      rejected: false,
+      createdAt: new Date()
+    });
+
+    await newRestaurant.save();
+    res.status(201).json(newRestaurant);
+  } catch (err) {
+    console.error('Signup error:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
 
 // ===== ADMIN-ONLY ROUTES ===== //

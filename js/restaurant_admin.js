@@ -1,50 +1,15 @@
+// ==================== RESTAURANT ADMIN FUNCTIONALITY ====================
 
-       // ==================== RESTAURANT ADMIN FUNCTIONALITY ====================
 let currentUser = null;
 let restaurants = [];
 let orders = [];
 let orderNotificationCount = 0;
-
-// Initialize restaurant data
-if (!window.restaurantData) {
-    try {
-        const storedData = localStorage.getItem('restaurantData');
-        window.restaurantData = storedData ? JSON.parse(storedData) : [];
-    } catch (e) {
-        console.error("Error initializing restaurant data:", e);
-        window.restaurantData = [];
-    }
-}
-
-// Load restaurant data
-function loadRestaurantData() {
-    try {
-        const data = localStorage.getItem('restaurantData');
-        return data ? JSON.parse(data) : [];
-    } catch (e) {
-        console.error("Error loading restaurant data:", e);
-        return [];
-    }
-}
-
-// Save restaurant data
-function saveRestaurantData(data) {
-    try {
-        window.restaurantData = data;
-        localStorage.setItem('restaurantData', JSON.stringify(data));
-        window.dispatchEvent(new Event('restaurantDataUpdated'));
-    } catch (e) {
-        console.error("Error saving restaurant data:", e);
-    }
-}
 
 // Load orders
 function loadOrders() {
     try {
         const savedOrders = localStorage.getItem('restaurantOrders');
         orders = savedOrders ? JSON.parse(savedOrders) : [];
-        
-        // Filter orders for this restaurant only
         if (currentUser) {
             return orders.filter(order => order.restaurantName === currentUser.name);
         }
@@ -68,11 +33,11 @@ function switchTab(tab) {
 function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     if (!notification) return;
-    
+
     notification.textContent = message;
     notification.className = `notification ${type}`;
     notification.classList.add('show');
-    
+
     setTimeout(() => {
         notification.classList.remove('show');
     }, 3000);
@@ -85,67 +50,66 @@ function playNotificationSound() {
     audio.play().catch(e => console.log("Audio play failed:", e));
 }
 
-// Handle signup
-document.getElementById('signup-form').addEventListener('submit', function(e) {
+// Handle signup - send to backend
+document.getElementById('signup-form').addEventListener('submit', async function (e) {
     e.preventDefault();
-    
+
     const name = document.getElementById('signup-name').value;
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
     const phone = document.getElementById('signup-phone').value;
     const address = document.getElementById('signup-address').value;
 
-    // Check if restaurant already exists
-    if (restaurants.find(r => r.email === email)) {
-        showNotification('Restaurant with this email already exists!', 'error');
-        return;
-    }
-
-    // Create new restaurant
     const newRestaurant = {
-        id: Date.now(),
         name,
         email,
         password,
         phone,
-        address,
-        approved: false,
-        rejected: false,
-        menuItems: [],
-        createdAt: new Date().toISOString()
+        address
     };
 
-    restaurants.push(newRestaurant);
-    saveRestaurantData(restaurants);
-    
-    showNotification('Registration successful! Waiting for admin approval.');
-    this.reset();
-    switchTab('login');
+    try {
+        const response = await fetch('https://yummy-food-ordering.onrender.com/api/restaurants', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newRestaurant)
+        });
+
+        if (!response.ok) throw new Error('Registration failed');
+
+        showNotification('Registration successful! Waiting for admin approval.');
+        this.reset();
+        switchTab('login');
+    } catch (error) {
+        console.error(error);
+        showNotification('Registration error!', 'error');
+    }
 });
 
 // Handle login
-document.getElementById('login-form').addEventListener('submit', function(e) {
+document.getElementById('login-form').addEventListener('submit', async function (e) {
     e.preventDefault();
-    
+
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    const restaurant = restaurants.find(r => r.email === email && r.password === password);
-    
-    if (!restaurant) {
-        showNotification('Invalid email or password!', 'error');
-        return;
-    }
+    try {
+        const res = await fetch(`https://yummy-food-ordering.onrender.com/api/restaurants/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
 
-    if (restaurant.rejected) {
-        showNotification('Your restaurant application was rejected. Please contact support.', 'error');
-        return;
-    }
+        if (!res.ok) throw new Error('Login failed');
 
-    currentUser = restaurant;
-    localStorage.setItem('currentUserId', currentUser.id);
-    showDashboard();
-    showNotification('Login successful!');
+        const restaurant = await res.json();
+        currentUser = restaurant;
+        localStorage.setItem('currentUserId', currentUser._id); // backend ID
+        showDashboard();
+        showNotification('Login successful!');
+    } catch (err) {
+        showNotification('Invalid credentials or unapproved account', 'error');
+    }
 });
 
 // Show dashboard
@@ -161,7 +125,7 @@ function updateDashboard() {
     if (!currentUser) return;
 
     document.getElementById('restaurant-name').textContent = currentUser.name;
-    
+
     const statusElement = document.getElementById('restaurant-status');
     if (currentUser.approved) {
         statusElement.textContent = 'APPROVED ✓';
@@ -182,10 +146,10 @@ function updateDashboard() {
 // Render menu items
 function renderMenuItems() {
     const container = document.getElementById('menu-items-list');
-    if (!container) return;
-    
-    if (!currentUser.menuItems || currentUser.menuItems.length === 0) {
-        container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No menu items yet. Add your first item!</p>';
+    if (!container || !currentUser?.menuItems) return;
+
+    if (currentUser.menuItems.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No menu items yet.</p>';
         return;
     }
 
@@ -202,20 +166,20 @@ function renderMenuItems() {
     `).join('');
 }
 
-// Render orders with customer info displayed
+// Render orders
 function renderOrders() {
     const container = document.getElementById('orders-list');
     if (!container) return;
-    
-    const restaurantOrders = loadOrders().filter(order => 
+
+    const restaurantOrders = loadOrders().filter(order =>
         order.status !== 'delivered' && order.restaurantName === currentUser.name
     );
-    
+
     if (restaurantOrders.length === 0) {
         container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No current orders</p>';
         return;
     }
-    
+
     container.innerHTML = restaurantOrders.map(order => `
         <div class="order-item">
             <div class="order-header">
@@ -239,56 +203,47 @@ function renderOrders() {
                     <p><strong>Phone:</strong> ${order.customerInfo.phone}</p>
                     <p><strong>Email:</strong> ${order.customerInfo.email}</p>
                     <p><strong>Address:</strong> ${order.customerInfo.address}</p>
-                    <p><strong>Instructions:</strong> ${order.customerInfo.instructions ? order.customerInfo.instructions : 'None'}</p>
+                    <p><strong>Instructions:</strong> ${order.customerInfo.instructions || 'None'}</p>
                 </div>
             </div>
             <div class="order-actions">
                 ${order.status === 'received' ? 
-                    `<button class="action-btn prepare-btn" onclick="updateOrderStatus(${order.orderId}, 'preparing')">
-                        Start Preparing
-                    </button>` : ''}
+                    `<button class="action-btn prepare-btn" onclick="updateOrderStatus(${order.orderId}, 'preparing')">Start Preparing</button>` : ''}
                 ${order.status === 'preparing' ? 
-                    `<button class="action-btn ready-btn" onclick="updateOrderStatus(${order.orderId}, 'ready')">
-                        Mark as Ready
-                    </button>` : ''}
+                    `<button class="action-btn ready-btn" onclick="updateOrderStatus(${order.orderId}, 'ready')">Mark as Ready</button>` : ''}
                 ${order.status === 'ready' ? 
-                    `<button class="action-btn complete-btn" onclick="updateOrderStatus(${order.orderId}, 'delivered')">
-                        Mark as Delivered
-                    </button>` : ''}
+                    `<button class="action-btn complete-btn" onclick="updateOrderStatus(${order.orderId}, 'delivered')">Mark as Delivered</button>` : ''}
             </div>
         </div>
     `).join('');
 }
 
-// Check for new orders
+// New order detection
 function checkForNewOrders() {
     if (!currentUser) return;
-    
+
     const restaurantOrders = loadOrders();
-    const newOrderCount = restaurantOrders.filter(order => 
-        order.restaurantName === currentUser.name && 
+    const newOrderCount = restaurantOrders.filter(order =>
+        order.restaurantName === currentUser.name &&
         order.status === 'received'
     ).length;
-    
+
     if (newOrderCount > orderNotificationCount) {
-        // New orders arrived
         const diff = newOrderCount - orderNotificationCount;
         showNotification(`You have ${diff} new order${diff > 1 ? 's' : ''}!`, 'success');
-        
-        // Play notification sound
         playNotificationSound();
     }
-    
+
     orderNotificationCount = newOrderCount;
     renderOrders();
 }
 
-// Add menu item
+// Menu item handling
 document.getElementById('add-item-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     if (!currentUser?.approved) {
-        showNotification('You can only add menu items after approval!', 'error');
+        showNotification('You can only add items after approval!', 'error');
         return;
     }
 
@@ -297,66 +252,38 @@ document.getElementById('add-item-form').addEventListener('submit', function(e) 
     const price = parseFloat(document.getElementById('item-price').value);
     const category = document.getElementById('item-category').value;
 
-    if (!name || !description || isNaN(price) || !category) {
-        showNotification('Please fill all fields correctly!', 'error');
-        return;
-    }
-
     const newItem = {
         id: Date.now(),
         name,
         description,
         price,
-        category,
-        createdAt: new Date().toISOString()
+        category
     };
 
     currentUser.menuItems = currentUser.menuItems || [];
     currentUser.menuItems.push(newItem);
-    
-    // Update in global array
-    const index = restaurants.findIndex(r => r.id === currentUser.id);
-    if (index !== -1) {
-        restaurants[index] = currentUser;
-        saveRestaurantData(restaurants);
-    }
-
     renderMenuItems();
-    showNotification('Menu item added successfully!');
+    showNotification('Item added successfully!');
     this.reset();
 });
 
-// Delete menu item
 function deleteMenuItem(itemId) {
-    if (!confirm('Are you sure you want to delete this item?')) return;
-    
     currentUser.menuItems = currentUser.menuItems.filter(item => item.id !== itemId);
-    
-    const index = restaurants.findIndex(r => r.id === currentUser.id);
-    if (index !== -1) {
-        restaurants[index] = currentUser;
-        saveRestaurantData(restaurants);
-    }
-
     renderMenuItems();
-    showNotification('Menu item deleted successfully!');
+    showNotification('Item deleted.');
 }
 
-// Update order status
+// Order status update
 function updateOrderStatus(orderId, newStatus) {
     const orderIndex = orders.findIndex(o => o.orderId === orderId);
     if (orderIndex !== -1) {
         orders[orderIndex].status = newStatus;
         try {
             localStorage.setItem('restaurantOrders', JSON.stringify(orders));
-            window.dispatchEvent(new StorageEvent('storage', {
-                key: 'restaurantOrders',
-                newValue: JSON.stringify(orders)
-            }));
             renderOrders();
-            showNotification(`Order #${orderId} status updated to ${newStatus}`);
+            showNotification(`Order #${orderId} marked as ${newStatus}`);
         } catch (e) {
-            console.error("Error updating order status:", e);
+            console.error("Failed to update order", e);
         }
     }
 }
@@ -368,54 +295,22 @@ function logout() {
     document.getElementById('auth-section').style.display = 'block';
     document.getElementById('dashboard').classList.remove('active');
     document.getElementById('logout-btn').style.display = 'none';
-    document.getElementById('login-form').reset();
 }
 
-// Refresh data
-function refreshData() {
-    const updatedRestaurants = loadRestaurantData();
-    if (JSON.stringify(updatedRestaurants) !== JSON.stringify(restaurants)) {
-        restaurants = updatedRestaurants;
-        if (currentUser) {
-            const updatedUser = restaurants.find(r => r.id === currentUser.id);
-            if (updatedUser) currentUser = updatedUser;
-            updateDashboard();
-        }
-    }
-    
-    // Check for new orders
-    checkForNewOrders();
-}
-
-// Initialize
+// Initializer
 document.addEventListener('DOMContentLoaded', () => {
-    restaurants = loadRestaurantData();
-    // Check if user is already logged in (for page refresh)
+    // Auto-login if previously stored
     const userId = localStorage.getItem('currentUserId');
     if (userId) {
-        currentUser = restaurants.find(r => r.id === Number(userId));
-        if (currentUser) showDashboard();
+        // You may need to fetch current user by ID here
+        // For now: skip auto-login
     }
-    
-    // Refresh data every 2 seconds
-    setInterval(refreshData, 2000);
+
+    setInterval(checkForNewOrders, 2000);
 });
 
-// Listen for storage events
-window.addEventListener('storage', (e) => {
-    if (e.key === 'restaurantOrders') {
-        try {
-            orders = e.newValue ? JSON.parse(e.newValue) : [];
-            checkForNewOrders();
-        } catch (e) {
-            console.error("Error processing order update:", e);
-        }
-    }
-});
-
-// Make functions available globally
+// Expose globals
 window.switchTab = switchTab;
+window.logout = logout;
 window.deleteMenuItem = deleteMenuItem;
 window.updateOrderStatus = updateOrderStatus;
-window.logout = logout;
-    
