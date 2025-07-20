@@ -1,12 +1,10 @@
 // ==================== CART FUNCTIONALITY ====================
-
-async function submitOrder() {
+import { api } from './api.js';
 
 let cartItems = [];
 let cartCount = 0;
 let orderPlaced = false;
 
-// Load cart from localStorage
 function loadCartFromStorage() {
   try {
     const savedCart = localStorage.getItem('cartItems');
@@ -19,7 +17,6 @@ function loadCartFromStorage() {
   }
 }
 
-// Save cart to localStorage
 function saveCartToStorage() {
   try {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
@@ -32,32 +29,26 @@ function saveCartToStorage() {
   }
 }
 
-// Update cart count in navigation
 function updateCartCount() {
   cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   document.getElementById('cart-count').textContent = cartCount;
 }
 
-// Group items by restaurant
 function groupItemsByRestaurant() {
   const groups = {};
-  
   cartItems.forEach(item => {
     if (!groups[item.restaurant]) {
       groups[item.restaurant] = [];
     }
     groups[item.restaurant].push(item);
   });
-  
   return groups;
 }
 
-// Calculate subtotal for a restaurant's items
 function calculateRestaurantSubtotal(items) {
   return items.reduce((total, item) => total + (item.price * item.quantity), 0);
 }
 
-// Render the cart content
 function renderCart() {
   const cartContent = document.getElementById('cart-content');
   const customerForm = document.getElementById('customer-info-form');
@@ -109,7 +100,6 @@ function renderCart() {
           <div class="restaurant-name">${restaurantName}</div>
           <div class="restaurant-status">OPEN</div>
         </div>
-        
         <div class="cart-items">
           ${items.map(item => `
             <div class="cart-item">
@@ -126,7 +116,6 @@ function renderCart() {
             </div>
           `).join('')}
         </div>
-        
         <div class="restaurant-summary">
           <h3 class="summary-title">Order Summary for ${restaurantName}</h3>
           <div class="summary-row">
@@ -164,7 +153,6 @@ function renderCart() {
   `;
 }
 
-// Update item quantity
 function updateQuantity(itemId, change) {
   const item = cartItems.find(item => item.id === itemId);
   if (item) {
@@ -180,7 +168,6 @@ function updateQuantity(itemId, change) {
   }
 }
 
-// Remove item from cart
 function removeItem(itemId) {
   const index = cartItems.findIndex(item => item.id === itemId);
   if (index > -1) {
@@ -193,67 +180,23 @@ function removeItem(itemId) {
   }
 }
 
-// Save orders to localStorage
-function saveOrders(orders) {
-  try {
-    // Get existing orders or initialize empty array
-    const existingOrders = JSON.parse(localStorage.getItem('restaurantOrders') || '[]');
-    
-    // Add new orders
-    const updatedOrders = [...existingOrders, ...orders];
-    
-    // Save back to localStorage
-    localStorage.setItem('restaurantOrders', JSON.stringify(updatedOrders));
-    
-    // Trigger storage event to notify other tabs
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'restaurantOrders',
-      newValue: JSON.stringify(updatedOrders)
-    }));
-  } catch (e) {
-    console.error("Error saving orders:", e);
-  }
-}
-
-// Proceed to checkout (show customer form)
-function proceedToCheckout() {
-  if (cartItems.length === 0) {
-    showNotification('Your cart is empty!', 'error');
-    return;
-  }
-
-  const customerForm = document.getElementById('customer-info-form');
-  const cartContent = document.getElementById('cart-content');
-  
-  // Show customer form and hide cart
-  customerForm.style.display = 'block';
-  cartContent.style.display = 'none';
-  
-  // Scroll to the form
-  customerForm.scrollIntoView({ behavior: 'smooth' });
-}
-
-// Submit order with customer info
-function submitOrder() {
-  // Validate customer info
+async function submitOrder() {
   const customerName = document.getElementById('customer-name').value;
   const customerPhone = document.getElementById('customer-phone').value;
   const customerEmail = document.getElementById('customer-email').value;
   const customerAddress = document.getElementById('customer-address').value;
-  
+
   if (!customerName || !customerPhone || !customerEmail || !customerAddress) {
     showNotification('Please fill all required customer information!', 'error');
     return;
   }
-  
-  // Validate email format
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(customerEmail)) {
     showNotification('Please enter a valid email address!', 'error');
     return;
   }
-  
-  // Validate phone number (basic validation)
+
   const phoneRegex = /^[\d\s\-+]{8,}$/;
   if (!phoneRegex.test(customerPhone)) {
     showNotification('Please enter a valid phone number!', 'error');
@@ -262,28 +205,25 @@ function submitOrder() {
 
   showNotification('Processing your orders...', 'info');
 
-  // Group items by restaurant
   const restaurantGroups = groupItemsByRestaurant();
-  const orderId = Math.floor(Math.random() * 10000) + 1000;
-  const orderTime = new Date().toISOString();
-  
-  // Create orders for each restaurant
+
   const allOrders = Object.entries(restaurantGroups).map(([restaurantName, items]) => {
     const subtotal = calculateRestaurantSubtotal(items);
     const deliveryFee = 2.99;
     const tax = subtotal * 0.08;
     const total = subtotal + deliveryFee + tax;
-    
+
     return {
-      restaurantName,
-      orderId,
-      items: [...items], // clone items array
+      restaurant: restaurantName,
+      items: items.map(item => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      })),
       subtotal,
       deliveryFee,
       tax,
       total,
-      orderTime,
-      status: 'received',
       customerInfo: {
         name: customerName,
         phone: customerPhone,
@@ -294,30 +234,37 @@ function submitOrder() {
     };
   });
 
-  // Save orders to localStorage
-  saveOrders(allOrders);
-  
-  // Clear cart and form
-  cartItems = [];
-  document.getElementById('delivery-form').reset();
-  orderPlaced = true;
-  saveCartToStorage();
-  updateCartCount();
-  
-  // Show confirmation and hide form
-  document.getElementById('customer-info-form').style.display = 'none';
-  document.getElementById('cart-content').style.display = 'block';
-  renderCart();
-  showNotification('Orders placed successfully!', 'success');
+  try {
+    await Promise.all(allOrders.map(order => api.placeOrder(order)));
+    cartItems = [];
+    orderPlaced = true;
+    updateCartCount();
+    renderCart();
+    showNotification('Orders placed successfully!', 'success');
+  } catch (e) {
+    console.error("Error placing orders:", e);
+    showNotification('Error placing orders. Please try again.', 'error');
+  }
 }
 
-// Go back to cart from customer info form
+function proceedToCheckout() {
+  if (cartItems.length === 0) {
+    showNotification('Your cart is empty!', 'error');
+    return;
+  }
+
+  const customerForm = document.getElementById('customer-info-form');
+  const cartContent = document.getElementById('cart-content');
+  customerForm.style.display = 'block';
+  cartContent.style.display = 'none';
+  customerForm.scrollIntoView({ behavior: 'smooth' });
+}
+
 function backToCart() {
   document.getElementById('customer-info-form').style.display = 'none';
   document.getElementById('cart-content').style.display = 'block';
 }
 
-// Continue shopping after order
 function continueShopping() {
   orderPlaced = false;
   cartItems = [];
@@ -329,7 +276,6 @@ function continueShopping() {
   showNotification('Ready to add more items!', 'info');
 }
 
-// Show notification
 function showNotification(message, type = 'info') {
   const notification = document.createElement('div');
   notification.className = `notification ${type}`;
@@ -341,17 +287,13 @@ function showNotification(message, type = 'info') {
   }, 3000);
 }
 
-// Navigate to menu page
 function navigateToMenu() {
   window.location.href = 'menu.html';
 }
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
   loadCartFromStorage();
   renderCart();
-
-  // Listen for storage events (cart updates from other tabs)
   window.addEventListener('storage', (e) => {
     if (e.key === 'cartItems') {
       loadCartFromStorage();
@@ -359,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Make functions available globally
 window.updateQuantity = updateQuantity;
 window.removeItem = removeItem;
 window.proceedToCheckout = proceedToCheckout;
@@ -367,30 +308,3 @@ window.submitOrder = submitOrder;
 window.backToCart = backToCart;
 window.continueShopping = continueShopping;
 window.navigateToMenu = navigateToMenu;
-
-try {
-  const response = await fetch('http://localhost:5000/api/orders', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      customer: {
-        name: customerName,
-        email: customerEmail,
-        phone: customerPhone,
-        address: customerAddress,
-        instructions: deliveryInstructions
-      },
-      items: cartItems,
-      total: calculateTotal()
-    })
-  });
-
-  if (!response.ok) throw new Error('Order failed');
-  
-  const order = await response.json();
-  showNotification('Order placed successfully! Check your email.');
-  clearCart();
-} catch (err) {
-  showNotification('Order failed: ' + err.message, 'error');
-}
-}

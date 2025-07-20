@@ -37,75 +37,61 @@ function updateCartCount() {
     document.getElementById('cart-count').textContent = cartCount;
 }
 
-// Load restaurant data from localStorage
-function loadData() {
+// Replace localStorage with API calls
+async function loadData() {
     try {
-        const data = localStorage.getItem('restaurantData');
-        allRestaurants = data ? JSON.parse(data) : [];
-        restaurants = allRestaurants.filter(r => r.approved && r.menuItems?.length > 0);
-        renderRestaurants();
+      const data = await api.getRestaurants();
+      allRestaurants = data;
+      restaurants = allRestaurants.filter(r => r.approved && r.menuItems?.length > 0);
+      await renderRestaurants();
     } catch (e) {
-        console.error("Error loading restaurant data:", e);
-        showEmptyState("Error loading data", "Please refresh the page or try again later");
+      console.error("Error loading restaurant data:", e);
+      showEmptyState("Error loading data", "Please refresh the page or try again later");
     }
-}
-
-// Render restaurants and their menus
-function renderRestaurants() {
+  }
+  
+  async function renderRestaurants() {
     const container = document.getElementById('restaurants-container');
+    
     if (!container) return;
     
     if (restaurants.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">🏪</div>
-                <h3>No restaurants available</h3>
-                <p>Approved restaurants will appear here</p>
-            </div>
-        `;
-        return;
+      showEmptyState("No restaurants available", "Approved restaurants will appear here");
+      return;
     }
-
-    container.innerHTML = restaurants.map(restaurant => `
-        <div class="restaurant-card">
-            <div class="restaurant-header">
-                <h3 class="restaurant-name">${restaurant.name}</h3>
-                <span class="restaurant-status">OPEN</span>
-            </div>
-            <div class="menu-items">
-                ${restaurant.menuItems?.length > 0 ? 
-                    restaurant.menuItems.map((item, index) => `
-                        <div class="menu-item">
-                            ${item.image ? `
-                            <div class="item-image">
-                                <img src="${item.image}" alt="${item.name}">
-                            </div>
-                            ` : ''}
-                            <div class="item-content">
-                                <h4 class="item-name">${item.name}</h4>
-                                <p class="item-description">${item.description}</p>
-                                <div class="item-footer">
-                                    <span class="item-price">$${item.price.toFixed(2)}</span>
-                                    <button class="add-to-cart" 
-                                            onclick="addToCart('${item.name.replace(/'/g, "\\'")}', 
-                                            ${item.price || 0}, 
-                                            '${restaurant.name.replace(/'/g, "\\'")}', 
-                                            '${restaurant.name}-${index}', this)">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('') : `
-                    <div class="empty-state">
-                        <p>No menu items available</p>
-                    </div>
-                `}
-            </div>
+  
+    // Fetch menus for each restaurant
+    const restaurantsWithMenus = await Promise.all(
+      restaurants.map(async restaurant => {
+        const menuItems = await api.getRestaurantMenu(restaurant._id);
+        return { ...restaurant, menuItems };
+      })
+    );
+  
+    container.innerHTML = restaurantsWithMenus.map(restaurant => `
+      <div class="restaurant-card">
+        <div class="restaurant-name">
+          ${restaurant.name}
+          <span class="restaurant-status">OPEN</span>
         </div>
+        <div class="menu-items">
+          ${restaurant.menuItems?.map((item, index) => `
+            <div class="menu-item">
+              <div class="item-name">${item.name?.replace(/"/g, '&quot;')}</div>
+              <div class="item-description">${item.description?.replace(/"/g, '&quot;')}</div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="item-price">$${(item.price || 0).toFixed(2)}</span>
+                <button class="add-to-cart" 
+                        onclick="addToCart('${item.name?.replace(/'/g, "\\'")}', ${item.price || 0}, '${restaurant.name?.replace(/'/g, "\\'")}', '${restaurant._id}-${index}', this)">
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
     `).join('');
-}
-
+  }
 // Show empty state message
 function showEmptyState(title, message) {
     const container = document.getElementById('restaurants-container');

@@ -485,35 +485,3 @@ nav a:hover, nav a.active {
     grid-template-columns: 1fr;
   }
 }
-
-.cart-item {
-  transition: all 0.3s ease;
-}
-
-.cart-item.removing {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.checkout-section {
-  background: white;
-  border-top: 3px solid #ff4757;
-  box-shadow: 0 -5px 30px rgba(0,0,0,0.1);
-}
-
-.progress-tracker {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-}
-
-.progress-step {
-  flex: 1;
-  text-align: center;
-  position: relative;
-}
-
-.progress-step.active {
-  color: #ff4757;
-  font-weight: bold;
-}
