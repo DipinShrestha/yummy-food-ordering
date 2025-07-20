@@ -1,14 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Menu</title>
-<link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <title>Menu - Yummy Food Delivery</title>
+    <link rel="stylesheet" href="css/menu.css">
+    
 </head>
 <body>
-<h1>Menu</h1>
-<input type="text" id="search" placeholder="Search">
-<div id="menu"></div>
-<script src="js/menu.js"></script>
+    <header class="navbar">
+        <div class="logo">Yummy</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="menu.html" class="active">Menu</a>
+            <a href="about.html">About</a>
+            <a href="restaurant_admin.html"><button class="order-btn">Restaurant Login</button></a>
+            <a href="cart.html"><button class="order-btn">MY CART (<span id="cart-count">0</span>)</button></a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">🍽️ Our Restaurant Partners</h1>
+        
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search restaurants or food items..." id="search-input">
+        </div>
+
+        <div class="restaurants-grid" id="restaurants-container">
+            <div class="empty-state">
+                <div class="empty-icon">🏪</div>
+                <h3>No restaurants available yet</h3>
+                <p>Restaurants are being reviewed and will appear here once approved!</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/menu.js"></script>
+    <script type="module" src="api.js"></script>
 </body>
 </html>
